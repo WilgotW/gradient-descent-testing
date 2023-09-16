@@ -60,6 +60,7 @@ export default function Canvas() {
   useEffect(() => {
     if (iterations >= 50) {
       setStartDescent(false);
+      setIterations(0);
     }
   }, [iterations]);
 
@@ -81,6 +82,9 @@ export default function Canvas() {
     setPoints([]);
     if (c) {
       const p: PointProps[] = [];
+
+      const pTest: PointProps[] = [{}];
+
       for (let i = 0; i < 10; i++) {
         const newPoint: PointProps = {
           x: 100 + i * 50 + randomInt(0, 30),
@@ -215,7 +219,7 @@ export default function Canvas() {
           <div className="eq-container">
             {linearEquation && (
               <span>
-                Linear equation: y = {linearEquation!.slope}k +{" "}
+                Linear equation: y = {linearEquation!.slope}x +{" "}
                 {linearEquation!.intercept}
               </span>
             )}
