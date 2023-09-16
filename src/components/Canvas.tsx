@@ -29,6 +29,7 @@ export default function Canvas() {
     //set starting props: m(intercept) k(slope)
     const equation: LinearEquationProps = { intercept: 10, slope: 1 };
     setLinearEquation(equation);
+    calcLossFunction();
     console.log(linearEquation);
   }, []);
 
@@ -48,8 +49,9 @@ export default function Canvas() {
   useEffect(() => {
     if (points?.length && linearEquation) {
       start();
+      console.log(points);
     }
-  }, [points, linearEquation]);
+  }, [points]);
 
   function start() {
     if (canvasRef && c) {
@@ -76,38 +78,64 @@ export default function Canvas() {
     //R^2 = d/di ((point y) - (equation intercept + equation slope * (point x)))^2
     //chain rule, derivate for i(intercept) --> -i
 
-    const learningRate = 0.000001; // Adjust the learning rate
+    const learningRate = 0.0001; // Adjust the learning rate
 
     let gxi = -1 * linearEquation!.intercept;
     let diRes = 0;
 
+    let gxs = -2;
     let dsRes = 0;
 
     points!.forEach((point) => {
-      const pY = canvasRef.current!.height - point.y;
-      diRes +=
+      const pY = point.y;
+      const pX = point.x;
+      const derivateIntercept =
         gxi * 2 * pY -
         gxi * 2 * linearEquation!.intercept -
-        gxi * 2 * linearEquation!.slope * point.x;
-      dsRes +=
-        2 *
-        point.x *
-        -1 *
-        (pY - (linearEquation!.intercept + linearEquation!.slope * point.x));
+        gxi * 2 * linearEquation!.slope * pX;
+
+      diRes += derivateIntercept;
+      // console.log("derivated intercept: " + derivateIntercept);
+
+      // const derivateSlope =
+      //   gxs * point.x * pY -
+      //   gxs * point.x * linearEquation!.intercept -
+      //   gxs * point.x * linearEquation!.slope * point.x;
+      // dsRes += derivateSlope;
+
+      const derivateSlope =
+        -2 * pX * pY +
+        2 * pX * linearEquation!.intercept +
+        2 * pX * pX * linearEquation!.slope;
+      dsRes += derivateSlope;
+
+      console.log("d slope: " + derivateSlope);
+
+      // gxs * point.x * py) gxs
+
+      // console.log("derivated slope: " + derivateSlope);
     });
     console.log("ds res: " + dsRes + " di res: " + diRes);
 
     const stepSizeIntercept = diRes * learningRate;
     const newIntercept = linearEquation!.intercept - stepSizeIntercept;
 
-    console.log(stepSizeIntercept);
+    // console.log(
+    //   "step size for intercept: " +
+    //     stepSizeIntercept +
+    //     " new intercept: " +
+    //     newIntercept
+    // );
 
     const stepSizeSlope = dsRes * learningRate;
     const newSlope = linearEquation!.slope - stepSizeSlope;
 
+    console.log(
+      "step size for slope: " + stepSizeSlope + " new slope: " + newSlope
+    );
     setLinearEquation({
       intercept: newIntercept,
-      slope: newSlope,
+      slope: 1,
     });
     resetCanvas();
     drawPoints();
@@ -120,6 +148,9 @@ export default function Canvas() {
     resetCanvas();
     drawPoints();
     drawEquation();
+    setTimeout(() => {
+      calcLossFunction();
+    }, 1000);
   }, [linearEquation]);
 
   //draw functions
