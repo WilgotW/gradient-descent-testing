@@ -24,6 +24,9 @@ export default function Canvas() {
   const [startDescent, setStartDescent] = useState<boolean>(false);
   const [iterations, setIterations] = useState<number>(0);
 
+  const [r2, setR2] = useState<number>(0);
+  const [pValue, setPValue] = useState<number>(0);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -32,7 +35,7 @@ export default function Canvas() {
     if (context) setC(context);
 
     //set starting props: m(intercept) k(slope)
-    const equation: LinearEquationProps = { intercept: 10, slope: 0.5 };
+    const equation: LinearEquationProps = { intercept: 10, slope: 2 };
     setLinearEquation(equation);
     calcLossFunction();
   }, []);
@@ -54,11 +57,13 @@ export default function Canvas() {
       setTimeout(() => {
         calcLossFunction();
       }, 500);
+    } else {
+      calcRelationship();
     }
   }, [linearEquation]);
 
   useEffect(() => {
-    if (iterations >= 50) {
+    if (iterations >= 25) {
       setStartDescent(false);
       setIterations(0);
     }
@@ -83,12 +88,10 @@ export default function Canvas() {
     if (c) {
       const p: PointProps[] = [];
 
-      const pTest: PointProps[] = [{}];
-
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 14; i++) {
         const newPoint: PointProps = {
-          x: 100 + i * 50 + randomInt(0, 30),
-          y: 50 + randomInt(0, 400) + i * 30,
+          x: 100 + i * 50 + randomInt(0, 50),
+          y: 10 + randomInt(0, 350) + i * 35,
         };
         p.push(newPoint);
       }
@@ -132,9 +135,7 @@ export default function Canvas() {
         2 * pX * linearEquation!.intercept +
         2 * pX * pX * linearEquation!.slope;
       dsRes += derivateSlope;
-      console.log("d slope: " + derivateSlope);
     });
-    console.log("ds res: " + dsRes + " di res: " + diRes);
 
     const stepSizeIntercept = diRes * learningRate;
     const newIntercept = linearEquation!.intercept - stepSizeIntercept;
@@ -150,6 +151,65 @@ export default function Canvas() {
     setSumR2Slope(dsRes);
   }
 
+  function calcRelationship() {
+    if (!points?.length || !linearEquation) return;
+    //calc the relationship between x and y in data points
+
+    //R^2 = (var(mean)-var(fit))/var(mean)
+
+    let meanY = 0;
+    points?.forEach((point) => {
+      meanY += point.y;
+    });
+    meanY = meanY / points!.length;
+
+    console.log(meanY);
+
+    //var(mean) = ss(mean) / n
+    //ss(mean) = (data - mean)^2 /n
+    let ssMean = 0;
+    points?.forEach((point) => {
+      let distance = point.y - meanY;
+      distance = distance * distance;
+      distance = Math.sqrt(distance);
+      console.log("distance: " + distance);
+      ssMean += distance;
+    });
+    ssMean = ssMean * ssMean;
+    console.log("ssMean: " + ssMean);
+    const variationMean = ssMean / points.length;
+    console.log(points.length);
+    console.log("var mean: " + variationMean);
+
+    //var(fit): variation around equation. explained by x
+    //var(fit) = ss(fit)/n
+    //ss(fit) = (data-line)^2
+
+    let ssFit = 0;
+    points?.forEach((point) => {
+      const eqYvalue =
+        linearEquation!.slope * point.x + linearEquation!.intercept;
+
+      ssFit += point.y - eqYvalue;
+    });
+    ssFit = ssFit * ssFit;
+    const variationFit = ssFit / points.length;
+
+    const R2 = (variationMean - variationFit) / variationMean;
+    setR2(R2 * 100);
+    console.log("var mean: " + variationMean + " var fit: " + variationFit);
+    console.log("x explaines y to a certainty of: " + R2 * 100 + "%");
+
+    //calc p-value
+    const pFit = 2; //2 parameters in this program (x, y)
+    const pMean = 1; //1 parameter in mean function (y = m)
+    const top = (ssMean - ssFit) / (pFit - pMean);
+    const bottom = ssFit / points.length - pFit;
+    const pValue = top / bottom;
+    setPValue(pValue);
+    console.log("top value: " + top + " bottom value: " + bottom);
+    console.log("p-value: " + pValue);
+  }
   //draw functions
   function resetCanvas() {
     if (canvasRef && c) {
@@ -280,6 +340,43 @@ export default function Canvas() {
               <div>y: {point.y}</div>
             </div>
           ))}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            marginTop: "30px",
+            gap: "10px",
+          }}
+        >
+          <div
+            style={{
+              height: "20px",
+              display: "flex",
+              alignItems: "center",
+              fontSize: "18px",
+              padding: "10px",
+              background: "rgb(241, 241, 241)",
+              borderBottom: "solid 1px black",
+              borderRadius: "10px",
+            }}
+          >
+            x explaines y to a certainty: {Math.floor(r2)}%
+          </div>
+          <div
+            style={{
+              height: "20px",
+              display: "flex",
+              alignItems: "center",
+              fontSize: "18px",
+              padding: "10px",
+              background: "rgb(241, 241, 241)",
+              borderBottom: "solid 1px black",
+              borderRadius: "10px",
+            }}
+          >
+            p-value: {Math.round(pValue)} (large value: fit is good)
+          </div>
         </div>
       </div>
     </div>
