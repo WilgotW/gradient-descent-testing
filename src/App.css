@@ -11,6 +11,7 @@ button {
   background: rgb(142, 142, 255);
   color: white;
   font-weight: bolder;
+  cursor: pointer;
 }
 span {
   font-size: 17px;
