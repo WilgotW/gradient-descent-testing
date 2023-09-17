@@ -43,7 +43,6 @@ export default function Canvas() {
   useEffect(() => {
     if (points?.length && linearEquation) {
       start();
-      console.log(points);
     }
   }, [points]);
   useEffect(() => {
@@ -89,7 +88,6 @@ export default function Canvas() {
       const p: PointProps[] = [];
 
       const steep: number = randomInt(25, 35);
-      console.log(randomInt(25, 35));
       for (let i = 0; i < 12; i++) {
         const newPoint: PointProps = {
           x: 100 + i * 50 + randomInt(0, 50),
@@ -118,7 +116,7 @@ export default function Canvas() {
     //chain rule, derivate for i(intercept) --> -i
 
     const learningRate = 0.0001;
-    let gxi = -1 * linearEquation!.intercept;
+    const gxi = -1 * linearEquation!.intercept;
 
     let diRes = 0;
     let dsRes = 0;
@@ -164,9 +162,6 @@ export default function Canvas() {
       meanY += point.y;
     });
     meanY = meanY / points!.length;
-
-    console.log(meanY);
-
     //var(mean) = ss(mean) / n
     //ss(mean) = (data - mean)^2 /n
     let ssMean = 0;
@@ -174,14 +169,10 @@ export default function Canvas() {
       let distance = point.y - meanY;
       distance = distance * distance;
       distance = Math.sqrt(distance);
-      console.log("distance: " + distance);
       ssMean += distance;
     });
     ssMean = ssMean * ssMean;
-    console.log("ssMean: " + ssMean);
     const variationMean = ssMean / points.length;
-    console.log(points.length);
-    console.log("var mean: " + variationMean);
 
     //var(fit): variation around equation. explained by x
     //var(fit) = ss(fit)/n
@@ -199,8 +190,6 @@ export default function Canvas() {
 
     const R2 = (variationMean - variationFit) / variationMean;
     setR2(R2 * 100);
-    console.log("var mean: " + variationMean + " var fit: " + variationFit);
-    console.log("x explaines y to a certainty of: " + R2 * 100 + "%");
 
     //calc p-value
     const pFit = 2; //2 parameters in this program (x, y)
@@ -209,8 +198,6 @@ export default function Canvas() {
     const bottom = ssFit / points.length - pFit;
     const pValue = top / bottom;
     setPValue(pValue);
-    console.log("top value: " + top + " bottom value: " + bottom);
-    console.log("p-value: " + pValue);
   }
   //draw functions
   function resetCanvas() {
@@ -252,7 +239,6 @@ export default function Canvas() {
         interX += 1;
       }
       c.lineTo(interX, canvasRef.current!.height - interY);
-      console.log(interY);
       c.stroke();
       c.closePath();
     }
