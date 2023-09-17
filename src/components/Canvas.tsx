@@ -55,14 +55,14 @@ export default function Canvas() {
       setIterations((prev) => prev + 1);
       setTimeout(() => {
         calcLossFunction();
-      }, 500);
+      }, 5);
     } else {
       calcRelationship();
     }
   }, [linearEquation]);
 
   useEffect(() => {
-    if (iterations >= 25) {
+    if (iterations >= 500) {
       setStartDescent(false);
       setIterations(0);
     }
@@ -87,8 +87,8 @@ export default function Canvas() {
     if (c) {
       const p: PointProps[] = [];
 
-      const steep: number = randomInt(25, 35);
-      for (let i = 0; i < 12; i++) {
+      const steep: number = randomInt(5, 45);
+      for (let i = 0; i < 16; i++) {
         const newPoint: PointProps = {
           x: 100 + i * 50 + randomInt(0, 50),
           y: 10 + randomInt(0, 350) + i * steep,
@@ -115,7 +115,7 @@ export default function Canvas() {
     //R^2 = d/di ((point y) - (equation intercept + equation slope * (point x)))^2
     //chain rule, derivate for i(intercept) --> -i
 
-    const learningRate = 0.0001;
+    const learningRate = 0.000005;
     const gxi = -1 * linearEquation!.intercept;
 
     let diRes = 0;
@@ -138,7 +138,7 @@ export default function Canvas() {
     });
 
     const stepSizeIntercept = diRes * learningRate;
-    const newIntercept = linearEquation!.intercept - stepSizeIntercept * 1.2;
+    const newIntercept = linearEquation!.intercept - stepSizeIntercept * 10;
 
     const stepSizeSlope = dsRes * learningRate;
     const newSlope = linearEquation!.slope - stepSizeSlope * 0.002;
@@ -350,7 +350,7 @@ export default function Canvas() {
               borderRadius: "10px",
             }}
           >
-            x explaines y to a certainty: {Math.floor(r2)}%
+            x explaines y to a certainty of: {Math.floor(r2)}%
           </div>
           <div
             style={{
