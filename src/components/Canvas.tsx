@@ -88,10 +88,12 @@ export default function Canvas() {
     if (c) {
       const p: PointProps[] = [];
 
-      for (let i = 0; i < 14; i++) {
+      const steep: number = randomInt(25, 35);
+      console.log(randomInt(25, 35));
+      for (let i = 0; i < 12; i++) {
         const newPoint: PointProps = {
           x: 100 + i * 50 + randomInt(0, 50),
-          y: 10 + randomInt(0, 350) + i * 35,
+          y: 10 + randomInt(0, 350) + i * steep,
         };
         p.push(newPoint);
       }
@@ -138,7 +140,7 @@ export default function Canvas() {
     });
 
     const stepSizeIntercept = diRes * learningRate;
-    const newIntercept = linearEquation!.intercept - stepSizeIntercept;
+    const newIntercept = linearEquation!.intercept - stepSizeIntercept * 1.2;
 
     const stepSizeSlope = dsRes * learningRate;
     const newSlope = linearEquation!.slope - stepSizeSlope * 0.002;
@@ -249,14 +251,15 @@ export default function Canvas() {
         interY += linearEquation!.slope;
         interX += 1;
       }
-      c.lineTo(interX, 0);
+      c.lineTo(interX, canvasRef.current!.height - interY);
+      console.log(interY);
       c.stroke();
       c.closePath();
     }
   }
 
   function randomInt(min: number, max: number) {
-    return Math.floor(Math.random() * (max - min) + 1) - min;
+    return Math.floor(Math.random() * (max - min) + 1) + min;
   }
   return (
     <div style={{ display: "flex" }}>
